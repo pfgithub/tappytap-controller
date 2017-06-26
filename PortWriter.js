@@ -1,22 +1,35 @@
 const events = require("events");
 const util = require("util");
 
+const bytemode = "?eeeeee|eeeddd|dddddd";
+
 class PortWriter {
   constructor(boards, serialport){
-    this.boards = [];
-    for(var i = 0; i < boards; i++){
-      this.boards.push(new Board());
-    }
-    this.port = serialport;
+    this.modifyBoardCount(boards);
 
     this.open = false;
 
-    this.port.on("open", () => {this.open = true;})
+    if(!serialport) { this.demo = true; this.open = true; }
+    else{
+      this.port = serialport;
+
+      this.port.on("open", () => {this.open = true;})
+    }
   }
 
-  write(){
+  write(callback){
     if(!this.open) return console.log("Port is not open, ignoring.");
+    var res = "";
     this.boards.forEach((board, i) => {
+      if(this.demo) {
+        res += i+":\n";
+        board.enables.forEach((b,n) => {
+          res += b == 1 ? "@" : "-";
+          if(Math.floor((n+1)/3) == (n+1)/3) res += "\n";
+        });
+        return;
+      }
+
       var bytes = [0,0,0];
       // byte 0
       if(i == 0) bytes[0] = bytes[0] | 0b10000000;//0x80;
@@ -34,8 +47,11 @@ class PortWriter {
       for(var i = 0; i < 6; i++){
         bytes[2] = bytes[2] | (board.directions[i+3] << (i));
       }
-      this.port.write(Buffer.from(bytes));
+      this.port.write(Buffer.from(bytes), () => {
+        this.port.drain(callback || (() => {}));
+      });
     });
+    //if(res) return console.log(res);
   }
 
   set(i, enable, direction){
@@ -46,6 +62,13 @@ class PortWriter {
 
   clear(){
     this.boards.forEach(board => board.clear());
+  }
+
+  modifyBoardCount(boards){
+    this.boards = [];
+    for(var i = 0; i < boards; i++){
+      this.boards.push(new Board());
+    }
   }
 }
 

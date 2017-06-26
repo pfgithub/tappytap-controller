@@ -1,16 +1,22 @@
 {
-  "name": "connect",
+  "name": "tappytap-controller",
   "version": "1.0.0",
-  "description": "",
+  "description": "A controller for tappytapv4",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "pfg",
   "license": "ISC",
+  "repository": "pfgithub/tappytap-controller",
+  "bugs": {
+    "url": "https://github.com/pfgithub/tappytap-controller/issues"
+  },
   "dependencies": {
+    "blessed": "^0.1.81",
     "keypress": "^0.2.1",
     "minimist": "^1.2.0",
-    "serialport": "^4.0.7"
+    "serialport": "^4.0.7",
+    "terminal-kit": "^1.11.0"
   }
 }

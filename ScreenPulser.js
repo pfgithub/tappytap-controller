@@ -20,25 +20,17 @@ function parseSetup(setup){
   return res;
 }
 
-class ScreenPulser {
-  constructor(setup, portWriter){
-    this.setup = parseSetup(setup);
-    this.portWriter = portWriter;
-    console.log(this.setup);
+class Position {
+  constructor(pulser, x, y){
+    this.rawx = x;
+    this.rawy = y;
+    //this.room = room;
 
-    this.requiresUpdate = false; // try to avoid sending too many things
-  }
-
-  clear(){
-    this.portWriter.clear();
-  }
-
-  Position(x, y){
     if(x < 0 || y < 0) return;
     var searchX = Math.floor(x/3);
     var searchY = Math.floor(y/3);
 
-    var found1 = this.setup[searchY];
+    var found1 = pulser.setup[searchY];
     if(!found1) return;
     var room = found1[searchX];
     if(!room) return;
@@ -56,32 +48,83 @@ class ScreenPulser {
         // + - -       + - +
         // - - +  ->   - - -
         // + - +       + + -
-        resx = Math.abs(flaty);
-        resy = Math.abs(-flatx);
+        resx = 0+(flaty);
+        resy = 2+(-flatx);
         break;
       case "v": // rotate 1
-        resx = Math.abs(-flaty);
-        resy = Math.abs(-flatx);
+        resx = 2+(-flatx);
+        resy = 2+(-flaty);
         break;
       case "<": // rotate 3/2
-        resx = Math.abs(-flaty);
-        resy = Math.abs(flatx);
+        resx = 2+(-flaty);
+        resy = 0+(flatx);
         break;
     }
 
-    return (resy*3+resx)+room.num*9;
+    //return (resy*3+resx)+room.num*9;
+    //return new Position(room.num, resx, resy);
+    this.room = room.num;
+    this.x = resx;
+    this.y = resy;
   }
 
-  set(Position, enable){
+  getFlatPosition(){
+    return (this.y*3+this.x)+this.room*9
+  }
+}
+
+class ScreenPulser {
+  constructor(setup, portWriter){
+    this.setup = parseSetup(setup);
+    this.portWriter = portWriter;
+
+    this.requiresUpdate = false; // try to avoid sending too many things
+
+    this.open = false;
+    this.portWriter.port.on("open", () => {
+      this.open = true;
+    });
+
+    this.onWrite = () => {};
+    this.onClear = () => {};
+  }
+
+  clear(){
     this.requiresUpdate = true;
-    // choose correct grid
+    this.portWriter.clear();
+    this.onClear();
   }
 
-  draw(){
-    if(!this.requiresUpdate) return;
+  Position(x, y){
+    return new Position(this, x, y);
+  }
+
+  set(position, enable){
+    if(position instanceof Position){
+      this.onWrite(...arguments);
+      position = position.getFlatPosition();
+    }
+    this.requiresUpdate = true;
+    this.portWriter.set(position, 0+enable, 0+enable); // TODO: when turned off, move down until complete
+  }
+
+  write(cb){
+    if(!this.requiresUpdate) return cb ? cb() : false;
+    if(!this.open) return cb ? cb() : false;
     this.requiresUpdate = false;
 
+    this.portWriter.write(cb);
+  }
 
+  writeLoop(callback, time){
+    if(!time) time = new Date();
+    this.write(() => {
+      setTimeout(() => {
+        var ctime = new Date();
+        callback(ctime.getTime() - time.getTime());
+        this.writeLoop(callback, ctime);
+      }, 80);
+    });
   }
 }
 
