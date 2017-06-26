@@ -12,6 +12,7 @@ function arg(name, shortname,desc){
 }
 
 arg("port", "p", "REQUIRED Set port --port COM4 --port /dev/portnum");
+arg("rate", "r", "REQUIRED Baud rate --rate 38400 --rate 12345");
 arg("boards", "b", "REQUIRED Set number of boards --boards 4 --boards 28");
 arg("help", "h", " Show help");
 arg("list", "l", " Show list");
@@ -47,7 +48,7 @@ else{
 term.clear();
 
 var spo = new SerialPort(argv.port, {
-  baudRate: 38400
+  baudRate: argv.rate
 });
 
 var writer = new PortWriter(

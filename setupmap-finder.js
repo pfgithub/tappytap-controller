@@ -1,37 +1,53 @@
 const SerialPort = require("serialport");
 const argv = require('minimist')(process.argv.slice(2));
 const PortWriter = require("./PortWriter");
-//const ScreenPulser = require("./ScreenPulser");
+const ScreenPulser = require("./ScreenPulser");
 const keypress = require('keypress');
 const term = require('terminal-kit').terminal;
 
-argv.port = argv.p || argv.port;
-argv.help = argv.h || argv.help;
-argv.list = argv.l || argv.list;
-argv.boards = argv.b || argv.boards;
+var args = {};
+function arg(name, shortname,desc){
+  argv[name] = argv[shortname] || argv[name]
+  args[name] = [shortname, desc];
+}
 
+arg("port", "p", "REQUIRED Set port --port COM4 --port /dev/portnum");
+arg("rate", "r", "REQUIRED Baud rate --rate 38400 --rate 12345");
+arg("boards", "b", "REQUIRED Set number of boards --boards 4 --boards 28");
+arg("help", "h", " Show help");
+arg("list", "l", " Show list");
+
+if(argv.help){
+  console.log("Listing Help...");
+  for(argument in args){
+    var arg = args[argument];
+    console.log(" "+ (arg[0] ? `-${arg[0]} ` : "") + `--${argument} : ${arg[1]}`);
+  }
+
+  process.exit();
+}
 if(argv.list){
-  console.log("Listing Ports...");
+  console.log("Listing Ports...\n");
   SerialPort.list((err, ports) => {
     if(err) throw(err);
     console.log("Ports: " + (ports.length > 0 ? '' : "No Ports Found!"));
     ports.forEach(port => {
-      console.log(port.comName);
-      console.log(port.pnpId);
-      console.log(port.manufacturer);
-      console.log("----");
+      console.log(" --port " + port.comName);
+      console.log("   " + port.pnpId);
+      console.log("   " + port.manufacturer);
+      console.log(" -----------");
     });
-  });
-}else if(argv.help){
-  console.log("help: --port --list --help --boards --test");
-};
 
-if(argv.list || argv.help) process.exit(0);
-if((argv.port || argv.test) && argv.boards) {} else { throw new Error("Usage or Boards not specified (--port|--test --boards --help)"); process.exit(1); }
+    process.exit();
+  });
+}
+
+if(argv.help || argv.list) { setTimeout( () => process.exit(), 1000 ) }
+else{
 
 var spo = argv.port ?
   new SerialPort(argv.port, {
-    baudRate: 38400
+    baudRate: argv.rate
   }) :
   undefined
 
@@ -209,3 +225,5 @@ process.stdin.on('keypress', (ch, key) => {
 
 process.stdin.setRawMode(true);
 process.stdin.resume();
+
+}
