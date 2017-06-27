@@ -13,7 +13,6 @@
     "url": "https://github.com/pfgithub/tappytap-controller/issues"
   },
   "dependencies": {
-    "blessed": "^0.1.81",
     "keypress": "^0.2.1",
     "minimist": "^1.2.0",
     "serialport": "^4.0.7",

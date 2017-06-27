@@ -57,10 +57,9 @@ var writer = new PortWriter(
 );
 
 var pulser = new ScreenPulser(`
-    ^2^ | >1> | v0v |     |
-        |     |     |     |
-    >3> | ^4^ | ^5^ | ^8^ |
-        |     | ^6^ | ^7^ |`,
+>2|>1|>0
+>5|>4|>3
+>8|>7|>6`,
   writer
 );
 
@@ -69,8 +68,8 @@ var y = 0;
 
 pulser.writeLoop(dt => {
   //pulser.clear();
-  term.moveTo(1,30,dt);
-  pulser.set(pulser.Position(x,y), true);
+  //term.moveTo(1,30,dt);
+  pulser.tset(pulser.Position(x,y), true);//[100,200]);
   pulser.write();
 });
 
@@ -94,6 +93,7 @@ process.stdin.on('keypress', (ch, key) => {
   }
 
   pulser.clear();
+  term.clear();
 
   if(key.name == "down"){
     y++;

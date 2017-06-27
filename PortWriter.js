@@ -54,10 +54,16 @@ class PortWriter {
     //if(res) return console.log(res);
   }
 
-  set(i, enable, direction){
+  tset(i, enable, direction){
     var board = Math.floor(i/9);
     if(board >= 0)
-      this.boards[board].set(i-(board*9), enable, direction);
+      this.boards[board].tset(i-(board*9), enable, direction);
+  }
+
+  tget(i){
+    var board = Math.floor(i/9);
+    if(board >= 0)
+      return this.boards[board].tget(i-(board*9));
   }
 
   clear(){
@@ -76,15 +82,18 @@ class Board {
   constructor() {
     this.clear();
   }
-  setEnable(i, value){
+  tsetEnable(i, value){
     this.enables[i] = value ? 1 : 0;
   }
-  setDirection(i, value){
+  tsetDirection(i, value){
     this.directions[i] = value ? 1 : 0;
   }
-  set(i, enable, direction){
-    if(enable) this.setEnable(i, enable);
-    if(direction) this.setDirection(i, direction);
+  tset(i, enable, direction){
+    if(enable) this.tsetEnable(i, enable);
+    if(direction) this.tsetDirection(i, direction);
+  }
+  tget(i){
+    return [this.enables[i], this.directions[i]];
   }
   clear(){
     this.enables = [0,0,0,0,0,0,0,0,0];

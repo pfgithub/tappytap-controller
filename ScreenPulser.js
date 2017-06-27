@@ -85,6 +85,9 @@ class ScreenPulser {
       this.open = true;
     });
 
+    this.frequencies = [];
+    this.freqTimes = [];
+
     this.onWrite = () => {};
     this.onClear = () => {};
   }
@@ -93,19 +96,39 @@ class ScreenPulser {
     this.requiresUpdate = true;
     this.portWriter.clear();
     this.onClear();
+
+    this.frequencies.forEach((fr, i) => {
+      this.frequencies[i] = undefined;
+    });
   }
 
   Position(x, y){
     return new Position(this, x, y);
   }
 
-  set(position, enable){
+  tset(position, enable, freq){
     if(position instanceof Position){
-      this.onWrite(...arguments);
       position = position.getFlatPosition();
     }
+
+    var newEnable = 0+enable; // make sure you are actually changing something
+    var newDirection = 0+enable; // and not just setting where you set last time
+    var oldEnableDirection = this.portWriter.tget(position);
+    if(!oldEnableDirection) return;
+    if(oldEnableDirection[0] == newEnable && oldEnableDirection == newDirection) return;
+
+    this.onWrite(...arguments);
+
     this.requiresUpdate = true;
-    this.portWriter.set(position, 0+enable, 0+enable); // TODO: when turned off, move down until complete
+    this.portWriter.tset(position, newEnable, newDirection); // TODO: when turned off, move down until complete
+
+    if(freq) {
+      this.frequencies[position] = [...freq, enable]; // starts on
+      this.freqTimes[position] = 0;
+    }else if(freq !== false){ // False for a frequency usees raw mode and does not overwrite the freq
+      this.frequencies[position] = undefined;
+    }else{
+    }
   }
 
   write(cb){
@@ -121,7 +144,17 @@ class ScreenPulser {
     this.write(() => {
       setTimeout(() => {
         var ctime = new Date();
-        callback(ctime.getTime() - time.getTime());
+        var dt = ctime.getTime() - time.getTime(); // time since last update
+        this.freqTimes.forEach((time, i) => {
+          if(this.frequencies[i]){
+            if(time > this.frequencies[i][0+this.frequencies[i][2]]){
+              this.tset(i, this.frequencies[i][2], false);
+              this.frequencies[i][2] ^= true;
+            }
+          }
+          this.freqTimes[i] = time + dt;
+        });
+        callback(dt);
         this.writeLoop(callback, ctime);
       }, 80);
     });

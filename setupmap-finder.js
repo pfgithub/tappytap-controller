@@ -1,7 +1,7 @@
 const SerialPort = require("serialport");
 const argv = require('minimist')(process.argv.slice(2));
 const PortWriter = require("./PortWriter");
-const ScreenPulser = require("./ScreenPulser");
+//const ScreenPulser = require("./ScreenPulser");
 const keypress = require('keypress');
 const term = require('terminal-kit').terminal;
 
@@ -68,7 +68,7 @@ var x = 1;
 var run = true;
 var runx = -1;
 var prevtime = new Date();
-var delayLength = argv.time || 40;
+var delayLength = argv.time || 80;
 
 var time = 0; // in half miliseconds
 var lines = false;
@@ -91,15 +91,15 @@ var loop = () => {
   if(!run && !lines && !numbers){
     //writer.set((jump ? 3 : 0) + x, 1, 1);
     var board = Math.floor(x/3);
-    writer.boards[board].set((jump ? 3 : 0) + x-(board*3), 1, 1);
+    writer.boards[board].tset((jump ? 3 : 0) + x-(board*3), 1, 1);
   }else if(run && !lines && !numbers){
     writer.boards.forEach((board, j) => {
       if(runx >= 0)
-        board.set(runx, 1, 1);
+        board.tset(runx, 1, 1);
       else {
         if(Math.round(runx/2) == runx/2 || true)
           for(var i = 0; i < 9; i++){
-            board.set(i, 1, 1);
+            board.tset(i, 1, 1);
           }
       }
     });
@@ -109,19 +109,19 @@ var loop = () => {
   if(numbers){
     writer.boards.forEach((board, j) => {
       if(time >= 1000){
-        board.set(7, 1, 1);
+        board.tset(7, 1, 1);
       }else if(time >= 750){
       }else if(time >= 500){
-        board.set(0, 1, 1);
-        board.set(2, 1, 1);
+        board.tset(0, 1, 1);
+        board.tset(2, 1, 1);
       }else if(time >= 250){
-        board.set(1, 1, 1);
-        board.set(3, 1, 1);
-        board.set(5, 1, 1);
+        board.tset(1, 1, 1);
+        board.tset(3, 1, 1);
+        board.tset(5, 1, 1);
       }else{
-        board.set(4, 1, 1);
-        board.set(6, 1, 1);
-        board.set(8, 1, 1);
+        board.tset(4, 1, 1);
+        board.tset(6, 1, 1);
+        board.tset(8, 1, 1);
       }
 
 
@@ -153,7 +153,7 @@ var loop = () => {
         var num = j;
         if(j >= 10) j = 10;
         ns[j].forEach((number) => {
-          board.set(number, 1, 1);
+          board.tset(number, 1, 1);
         });
       }
     });
