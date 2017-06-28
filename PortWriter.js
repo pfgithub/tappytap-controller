@@ -56,13 +56,13 @@ class PortWriter {
 
   tset(i, enable, direction){
     var board = Math.floor(i/9);
-    if(board >= 0)
+    if(board >= 0 && board < this.boards.length)
       this.boards[board].tset(i-(board*9), enable, direction);
   }
 
   tget(i){
     var board = Math.floor(i/9);
-    if(board >= 0)
+    if(board >= 0 && board < this.boards.length)
       return this.boards[board].tget(i-(board*9));
   }
 

@@ -10,12 +10,12 @@ Create a `TappyTap.ScreenPulser` with `(`a [setupmap](#setupmap)`,`an instance o
 ### Example
 
 ```javascript
-var serialPort = new SerialPort("/dev/cu.usbmodem1421" /* The serialport is located at /dev/cu.usbmodem1421*/, {
+var serialPort = new SerialPort("/dev/cu.usbmodem1421" /* The serialport is at /dev/cu.usbmodem1421*/, {
   baudRate: 9600 // baud rate
 });
 
 var writer = new PortWriter(
-  25, // 25 boards are connected
+  25, // 25 boards connected
   serialPort //
 );
 
@@ -32,7 +32,7 @@ Use `setupmap-finder.js` with `--port` the port location, found with --list `--b
 
 A setupmap contains lines with `<#<`s seperated by `|`s.
 
-`#` is the board number (`0`-`9007199254740991`. This is shown by pressing `F2` and is after the demo mode. The board number is flashed on each board. A line (`|`) means the number is above 10 and you have to count, and a (`O`) means the board number is `0`)
+`#` is the board number (`0`-`9007199254740991`. This can be seen by pressing `F2` and is after the demo mode. The board number flashes on each board. A line (`|`) means the number is above 10 and you have to count, and a (`O`) means the board number is `0`)
 
 `<` is your direction (can be `^`, `>`, `v`, `<`. This is shown by pressing `F2` after the numbers)
 

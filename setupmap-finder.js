@@ -79,6 +79,10 @@ term.saveCursor();
 term.clear();
 term.hideCursor();
 
+var hi = {
+  "": "",
+}
+
 var loop = () => {
   var dt = (new Date()).getTime() - prevtime.getTime();
   prevtime = new Date();
@@ -107,13 +111,15 @@ var loop = () => {
   }
 
   if(numbers){
+    if(time >= 750) time = 0;
     writer.boards.forEach((board, j) => {
-      if(time >= 1000){
+      /*if(time >= 1000){
         board.tset(7, 1, 1);
       }else if(time >= 750){
-      }else if(time >= 500){
-        board.tset(0, 1, 1);
+      }else */if(time >= 500){
+        board.tset(0, 1, 1); // single comment
         board.tset(2, 1, 1);
+        board.tset(7, 1, 1);
       }else if(time >= 250){
         board.tset(1, 1, 1);
         board.tset(3, 1, 1);
@@ -130,8 +136,6 @@ var loop = () => {
     term.moveTo(1,5, `Press F2 to show solenoid tests`);
     term.moveTo(1,6, ` Configuration: Arrows # Arrows`);
     term.moveTo(1,7, `F2- . . >`);
-
-    if(time >= 1250) time = 0;
   }else if(!lines){
     term.moveTo(1,5, `Press F2 to show configuration information`);
     term.moveTo(1,6, ` Configuration: <      #      <`);

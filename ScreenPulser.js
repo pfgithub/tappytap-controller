@@ -114,8 +114,9 @@ class ScreenPulser {
     var newEnable = 0+enable; // make sure you are actually changing something
     var newDirection = 0+enable; // and not just setting where you set last time
     var oldEnableDirection = this.portWriter.tget(position);
-    if(!oldEnableDirection) return;
-    if(oldEnableDirection[0] == newEnable && oldEnableDirection == newDirection) return;
+    if(oldEnableDirection === undefined) return;
+    if(oldEnableDirection[0] == newEnable && oldEnableDirection[1] == newDirection) return;
+    //console.log(position);
 
     this.onWrite(...arguments);
 
@@ -154,8 +155,7 @@ class ScreenPulser {
           }
           this.freqTimes[i] = time + dt;
         });
-        callback(dt);
-        this.writeLoop(callback, ctime);
+        callback(dt, () => {this.writeLoop(callback, ctime);});
       }, 80);
     });
   }

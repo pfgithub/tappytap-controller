@@ -13,8 +13,10 @@
     "url": "https://github.com/pfgithub/tappytap-controller/issues"
   },
   "dependencies": {
+    "bluebird": "^3.5.0",
     "keypress": "^0.2.1",
     "minimist": "^1.2.0",
+    "node-webcam": "^0.4.3",
     "serialport": "^4.0.7",
     "terminal-kit": "^1.11.0"
   }
