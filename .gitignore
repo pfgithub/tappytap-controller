@@ -63,3 +63,7 @@ typings/
 zzOutput*.*
 zzDemoPulser.*
 sprite*.*
+
+# Patterns
+
+patterns/*

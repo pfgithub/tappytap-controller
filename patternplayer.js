@@ -10,7 +10,7 @@ const fs = require("fs");
 const path = require("path");
 
 const args = {};
-function arg(name, shortname, desc, defaul, err) {
+function arg(name, shortname, desc, defaul, err){
   argv[name] = argv[shortname] || argv[name] || defaul;
   if(!argv[name]) if(err) throw(err);
   args[name] = [shortname, desc, defaul];
@@ -22,19 +22,20 @@ arg("boards", "b", "REQUIRED Set number of boards --boards 4 --boards 28", 10, n
 arg("pattern", undefined, " Use custom pattern", undefined, new Error("Pattern must be specified"));
 arg("speed", undefined, " Run animation speed", 100);
 arg("player", undefined, " Show player and hide animation");
+arg("json", undefined, " If the input file should be read as a json file");
 arg("help", "h", " Show help");
 arg("list", "l", " Show list");
 
-if(argv.help) {
+if(argv.help){
   console.log("Listing Help...");
-  for(let argument in args) {
+  for(let argument in args){
     const argu = args[argument];
     console.log(` ${argu[0] ? `-${argu[0]} ` : ""}${`--${argument} ${argu[2] ? `(=${argu[2]})` : ""}: ${argu[1]}`}`);
   }
 
   setTimeout(() => process.exit(), 10);
 }
-if(argv.list) {
+if(argv.list){
   console.log("Listing Ports...\n");
   SerialPort.list((err, ports) => {
     if(err) throw(err);
@@ -50,17 +51,17 @@ if(argv.list) {
   });
 }
 
-if(argv.help || argv.list || argv.camera) { setTimeout( () => process.exit(), 10000 ); }else{
+if(argv.help || argv.list || argv.camera){ setTimeout( () => process.exit(), 10000 ); }else{
   console.log("Reading pattern file... This may take some time"); // it probably won't take any time
   const startingTime = new Date();
   const file = fs.readFileSync(path.join(process.cwd(), argv.pattern), "utf8");
   const ammountOfTimeItTook = (new Date()).getTime() - startingTime.getTime();
-  console.log(ammountOfTimeItTook > 0 ? `Done, took ${ammountOfTimeItTook}ms` : `Done, no time was taken`);
+  console.log(ammountOfTimeItTook > 0 ?  (ammountOfTimeItTook < 100 ? `Done, took less than a second` : `Done, took ${ammountOfTimeItTook}ms`) : `Done, no time was taken`);
 //console.log(file);
 
 //term.clear();
 
-  function convertPatternFileToArray(patternFile) {
+  function convertPatternFileToArray(patternFile){
     const array = [];
 
     patternFile.split(" ").join("").split("+").forEach(lineBlock => {
@@ -70,7 +71,7 @@ if(argv.help || argv.list || argv.camera) { setTimeout( () => process.exit(), 10
         const singlePatternUnitY = [];
 
         line.split("").forEach(character => {
-          switch(character) {
+          switch(character){
           case "@":
           case "+":
           case "1":
@@ -95,7 +96,7 @@ if(argv.help || argv.list || argv.camera) { setTimeout( () => process.exit(), 10
     return array;
   }
 
-  const pattern = convertPatternFileToArray(file);
+  const pattern = argv.json ? JSON.parse(file) : convertPatternFileToArray(file);
 
   const spo = new SerialPort(argv.port, {
     "baudRate": argv.rate
@@ -120,24 +121,23 @@ if(argv.help || argv.list || argv.camera) { setTimeout( () => process.exit(), 10
 
   let xx = 0;
 
-  function drawPatternStep(s) {
-    if(!pattern[s]) return;
-    pattern[s].forEach((patternLine, y) => {
-      patternLine.forEach((patternElementState, x) => {
-        pulser.tset(pulser.position(x, y), patternElementState);
+  function drawPatternStep(s){
+    if(pattern[s]) pattern[s].forEach((patternLine, y) => {
+      if(patternLine) patternLine.forEach((patternElementState, x) => {
+        if(patternElementState) pulser.tset(pulser.position(x, y), patternElementState);
       });
     });
   }
 
   pulser.writeLoop((dt, next) => {
-    if(animationwaittime >= argv.speed) {
+    if(animationwaittime >= argv.speed){
       animationwaittime = 0;
       animationstate++;
       pulser.clear();
     }
     animationwaittime += dt;
 
-    if(animationstate >= pattern.length) {
+    if(animationstate >= pattern.length){
       animationstate = 0;
     }
 
@@ -160,7 +160,7 @@ if(argv.help || argv.list || argv.camera) { setTimeout( () => process.exit(), 10
   keypress(process.stdin);
 
   process.stdin.on("keypress", (ch, key) => {
-    if ((key && key.ctrl && key.name == "c") || key.name == "f1") {
+    if ((key && key.ctrl && key.name == "c") || key.name == "f1"){
       process.exit();
     }
 
@@ -168,19 +168,19 @@ if(argv.help || argv.list || argv.camera) { setTimeout( () => process.exit(), 10
     xx = 0;
   //term.clear();
 
-    if(key.name == "down") {
+    if(key.name == "down"){
       playery++;
     }
 
-    if(key.name == "right") {
+    if(key.name == "right"){
       playerx++;
     }
 
-    if(key.name == "left") {
+    if(key.name == "left"){
       playerx--;
     }
 
-    if(key.name == "up") {
+    if(key.name == "up"){
       playery--;
     }
   });
